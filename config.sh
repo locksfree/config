@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# Setup the vim configuration
+if [ ! -d ~/configurations/ ]
+then
+	mkdir -p ~/configurations > /dev/null 2>&1
+	cd ~/configurations
+	echo "Retrieving configurations..."
+	git clone https://github.com/locksfree/dotfiles.git # > /dev/null 2>&1
+
+	echo "Configuring vim..."
+	[ -f "~/.vimrc" ] && mv ~/.vimrc ~/.vimrc.bak
+	ln -s ~/configurations/dotfiles/vim/vimrc.vim ~/.vimrc
+	mkdir -p ~/.vim/bundle
+	ln -s ~/configurations/dotfiles/vim/vundles ~/.vim/vundles
+	
+	echo "Configuring terminator..."
+	mkdir -p ~/.config/terminator
+	ln -s ~/configurations/dotfiles/terminator/config ~/.config/terminator/config
+
+	echo "Vim will now be run to install the plugins. Close it once done"
+	read -p "Press any key to start..."
+	vim
+else
+	cd ~/configurations/dotfiles
+	echo "Updating the configurations..."
+	git pull origin master > /dev/null 2>&1
+fi
+
+# Change the default mapping of tasklist
+if [ `cat ~/.vim/bundle/TaskList.vim/plugin/tasklist.vim | head -n 369 | tail -n 1 | grep '<Leader>t' | wc -l` -ne 0 ]
+then
+   echo "Changing mapping of tasklist"
+   cat ~/.vim/bundle/TaskList.vim/plugin/tasklist.vim | sed -E 's/map <unique> <Leader>t <Plug>TaskList/map <unique> <Leader>n <Plug>TaskList/g' > /tmp/tasklist.vim
+   mv /tmp/tasklist.vim ~/.vim/bundle/TaskList.vim/plugin/tasklist.vim
+fi
+
+# Create ~/.vim/view and ~/.vim/tmp if not there
+mkdir -p ~/.vim/view
+mkdir -p ~/.vim/tmp
+
+# Install the Source Code Pro font
+if [ ! -d ~/.fonts/scp ]
+then
+   echo "Downloading source code pro..."
+   mkdir -p ~/.fonts/scp
+   git clone https://github.com/adobe-fonts/source-code-pro.git ~/.fonts/scp > /dev/null
+   echo "Requires sudo to refresh the font-cache"
+   fc-cache -vf ~/.fonts/ > /dev/null 
+fi
+
+# Install powerline fonts
+if [ ! -f ~/.fonts/PowerlineSymbols.otf ]
+then
+   echo "Downloading powerline fonts..."
+   wget https://github.com/powerline/powerline/raw/develop/font/PowerlineSymbols.otf > /dev/null 2>&1
+   wget https://github.com/powerline/powerline/raw/develop/font/10-powerline-symbols.conf > /dev/null 2>&1
+   mv PowerlineSymbols.otf ~/.fonts/
+   fc-cache -vf ~/.fonts/ > /dev/null
+   mkdir -p ~/.config/fontconfig/conf.d
+   mv 10-powerline-symbols.conf ~/.config/fontconfig/conf.d/
+fi
+
+if [ ! -f ~/.fonts/Hasklig-Regular.otf ]
+then
+   wget https://github.com/i-tu/Hasklig/raw/master/target/Hasklig-Regular.otf > /dev/null
+   mv Hasklig-Regular.otf ~/.fonts/
+   fc-cache -vf ~/.fonts/ > /dev/null
+   # Set the font in the terminator config
+fi
