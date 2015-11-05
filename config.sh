@@ -27,6 +27,35 @@ else
 	git pull origin master > /dev/null 2>&1
 fi
 
+# Configuring git
+if [ ! -L ~/.gitconfig  ]
+then
+   if [ -f ~/.gitconfig ]
+   then
+      echo "~/.gitconfig is a regular file, you may want to change it to point to your dotfiles git config"
+   else
+      echo "Linking ~/.gitconfig to your dotfiles..."
+      ln -s ~/configurations/dotfiles/git/config ~/.gitconfig
+   fi
+else
+   if [ -h ~/.gitconfig ]
+   then
+      echo "Fixing broken ~/.gitconfig symlink, pointing to a non-existent file"
+      echo -e "\tOld target: $(readlink ~/.gitconfig)"
+      rm ~/.gitconfig
+      ln -s ~/configurations/dotfiles/git/config ~/.gitconfig
+      echo -e "\tNew target: $(readlink ~/.gitconfig)"
+   else
+      # Let's check where the link points to
+      if [ "$(readlink ~/.gitconfig)" = "~/configurations/dotfiles/git/config" ]
+      then
+         echo "Valid ~/.gitconfig symlink, not changing anything"
+      else
+         echo "Valid ~/.gitconfig symlink, but not pointing at your dotfiles git config, you may want to change it"
+      fi
+   fi
+fi
+
 # Change the default mapping of tasklist
 if [ `cat ~/.vim/bundle/TaskList.vim/plugin/tasklist.vim | head -n 369 | tail -n 1 | grep '<Leader>t' | wc -l` -ne 0 ]
 then
