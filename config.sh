@@ -38,7 +38,7 @@ then
       ln -s ~/configurations/dotfiles/git/config ~/.gitconfig
    fi
 else
-   if [ -h ~/.gitconfig ]
+   if [ ! -e ~/.gitconfig ]
    then
       echo "Fixing broken ~/.gitconfig symlink, pointing to a non-existent file"
       echo -e "\tOld target: $(readlink ~/.gitconfig)"
@@ -47,7 +47,7 @@ else
       echo -e "\tNew target: $(readlink ~/.gitconfig)"
    else
       # Let's check where the link points to
-      if [ "$(readlink ~/.gitconfig)" = "~/configurations/dotfiles/git/config" ]
+      if [ "$(readlink ~/.gitconfig)" = "$HOME/configurations/dotfiles/git/config" ]
       then
          echo "Valid ~/.gitconfig symlink, not changing anything"
       else
@@ -96,4 +96,35 @@ then
    mv Hasklig-Regular.otf ~/.fonts/
    fc-cache -vf ~/.fonts/ > /dev/null
    # Set the font in the terminator config
+fi
+
+if [ ! -d ~/.oh-my-zsh ]
+then
+   echo "Installing oh-my-zsh..."
+   sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+fi
+
+# Setup meld as the git merge tool of choice
+if [ `cat ~/.gitconfig | grep mymeld | wc -l` -eq 0 ]
+then
+   echo "[merge]" >> ~/.gitconfig
+   echo "tool = mymeld\nconflictstyle = diff3" >> ~/.gitconfig
+   echo '[mergetool "mymeld"]' >> ~/.gitconfig
+   echo 'cmd = meld --diff $BASE $LOCAL --diff $BASE $REMOTE --diff $LOCAL $BASE $REMOTE --output $MERGED' >> ~/.gitconfig
+fi
+
+if [ ! -d ~/.nvm ]
+then
+   echo "Installing nvm..."
+   git clone https://github.com/creationix/nvm.git ~/.nvm > /dev/null
+   cd ~/.nvm
+   git checkout `git describe --abbrev=0 --tags` > /dev/null
+
+   if [ `cat ~/.bashrc | grep 'nvm/nvm.sh' | wc -l` -eq 0 ]
+   then
+      echo "Adding nvm to your bashrc"
+      echo -e "\n#Add nvm support\n. ~/.nvm/nvm.sh" >> ~/.bashrc
+   fi
+
+   echo "Please source ~/.nvm/nvm.sh or restart your console"
 fi

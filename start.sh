@@ -25,6 +25,8 @@ echo "Installing vim..."
 apt-get install -yf vim > /dev/null 
 echo "Installing zsh..."
 apt-get install -yf zsh > /dev/null
+echo "Installing meld..."
+apt-get install -yf meld > /dev/null
 
 if [ `vim --version | ack '([+]ruby)' | wc -l` -eq 0 ]
 then
