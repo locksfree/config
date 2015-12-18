@@ -104,6 +104,12 @@ then
    sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 fi
 
+# Load nvm by default
+if [ `cat ~/.zshrc | grep nvm.sh | wc -l` -eq 0 ]
+then
+   echo -e "\n#Load nvm\nsource ~/.nvm/nvm.sh" >> ~/.zshrc
+fi
+
 # Setup meld as the git merge tool of choice
 if [ `cat ~/.gitconfig | grep mymeld | wc -l` -eq 0 ]
 then
